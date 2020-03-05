@@ -85,6 +85,15 @@
                         </label>
                     </div>
                 </div>
+            <select value="{{branch.address}} " name="physician_working_branch" class="mdb-select md-form" searchable="Search here..">
+            <option value="" disabled selected>Choose Hospital branch</option>
+            {% for branch in get_hospital_branches %}
+              <option value="{{branch.address}} "  data-secondary-text="Production year: 2012">
+            {{branch.address}} 
+           </option>
+            {% endfor %}
+          </select>
+
                 <div class="col-lg-12 p-t-20">
                     <label style="color: #999999">Working Days</label>
                     <select class="form-control" multiple="multiple" id="my-select" style="height:150px" name="week_day">

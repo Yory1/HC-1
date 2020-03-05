@@ -407,6 +407,7 @@ class Clinic(models.Model):
     @property
     def get_address(self):
         return MedicalInstitutionsAddress.objects.filter(institution=self.clinic)
+    
 
 
 class Pharmacy(models.Model):
@@ -607,6 +608,9 @@ class PhysicianHospitalWorkingTime(models.Model):
     def __str__(self):
         return str(self.physician_nn)
 
+    def get_hospital_branches(self):
+        return MedicalInstitutionsAddress.objects.filter(institution=self.hospital)
+
 
 class PhysicianClinicWorkingTime(models.Model):
     physician_nn = models.ForeignKey(Physician, models.DO_NOTHING, db_column='Physician_NN')
@@ -629,6 +633,9 @@ class PhysicianClinicWorkingTime(models.Model):
     def get_Specialization(self):
         physician = get_object_or_none(Physician, physician_nn=self.physician_nn)
         return PhysicianSpecialization.objects.filter(physician_nn=physician)
+
+    def get_clinic_branches(self):
+        return MedicalInstitutionsAddress.objects.filter(institution=self.clinic)
 
 
 # -- ** Many-To-Many Relation Tables ** --

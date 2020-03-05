@@ -90,25 +90,11 @@ function phone_delete(num) {
 
 function relatives_phone_add() {
     relatives_phone_no += 1
-    $('#relatives_phone').append(`
-    <div id="relatives_phone_` + relatives_phone_no + `">
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label txt-full-width">
-            <input class="mdl-textfield__input" id="text5" pattern="-?[0-9]*(\.[0-9]+)?" type="text" name="relatives_phones" placeholder="Relatives phone Number" required autocomplete="nope"/>
-            <label class="mdl-textfield__label" for="text5">
-            </label>
-            <span class="mdl-textfield__error">
-                Number required!
-            </span>
-        </div>
-        <div align = "right">
-            <button class="btn btn-skype waves-effect waves-light" type="button" onclick="relatives_phone_add()">
-                <i class="fa fa-plus"></i>
-            </button>
-            <button class = "btn btn-pinterest waves-effect waves-light" type = "button" onclick = "relatives_phone_delete(` + relatives_phone_no + `)">
-                <i class="fa fa-trash-o"></i>
-            </button>
-        </div>
-    </div>`);
+    $('#doctor_location').html(`<div class="d-block d-md-flex">
+   
+          <span class="lh-120 ml-md-4">
+           <i class="fas fa-map-marker-alt mr-1 pr-1">
+           </i>`);
 }
 
 function relatives_phone_delete(num) {
@@ -259,6 +245,3 @@ function analysis_and_radiology_add(){
         `);
 }
 
-function analysis_and_radiology_delete(num) {
-    $('#analysis_and_radiology_' + num).remove();
-}

@@ -1,7 +1,8 @@
 
 from cpanel.models import ( PhysicianPatientAppointment ,Physician ,PhysicianClinicWorkingTime,
 							Clinic ,PhysicianHospitalWorkingTime ,Hospital,Patient,
-							Stakeholders, PhysicianRating,ClinicRating,MedicalInstitutions,
+							Stakeholders, PhysicianRating,ClinicRating,HospitalRating,MedicalInstitutions,
+                            MedicalInstitutionsAddress,MedicalInstitutionsPhone,
                             PhysicianSpecialization,Specialization)
 						
 

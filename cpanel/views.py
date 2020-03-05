@@ -1,9 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from main.utils import get_object_or_none
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound ,Http404
 from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import JsonResponse
+from django.core import serializers
 
 
 # Doctor Views
@@ -1358,6 +1362,7 @@ def Clinic_add(request):
                 medical_institution = MedicalInstitutions.objects.create(
                     institution_id=request.POST.get('institution_id'),
                     institution_name=request.POST.get('institution_name'),
+                    standard_fee= request.POST.get('standard_fee'),
                     user=user
                 )
 
@@ -1406,7 +1411,106 @@ def Clinic_add(request):
 
 
 def Clinic_edit(request, id):
-    pass
+
+    specializations = Specialization.objects.all()
+    institution = get_object_or_404(MedicalInstitutions, institution_id=id)
+    institution_numbers = institution.get_phone
+    institution_address = institution.get_address
+    clinic = get_object_or_404(Clinic, clinic=id)
+    clinic_specializations = [i.specialization for i in clinic.get_Specialization]
+
+    if request.is_ajax():
+        if request.method == "POST":
+            # data preprocessing
+            hide = True if request.POST.get('hide') == 'on' else False
+            ER = True if request.POST.get('er_availability') == 'on' else False
+
+            # Handle stakeholder
+            institution.institution_name = request.POST.get('institution_name')
+            institution.standard_fee= request.POST.get('standard_fee'),
+
+            # Handle stakeholder image
+            if request.FILES.get('image'):
+                institution.image = request.FILES.get('image')
+
+            institution.save()
+
+            # Handle password
+            if request.POST.get('password'):
+                user = get_object_or_none(User, username=institution)
+                if user.check_password(request.POST.getlist('password')[0]):
+                    user.set_password(request.POST.getlist('password')[1])
+                    user.save()
+
+            # Handle phone
+            old_numbers = [i.phone for i in institution_numbers]
+            for number in request.POST.getlist('phone'):
+                if number in old_numbers:
+                    old_numbers.remove(number)
+                else:
+                    MedicalInstitutionsPhone.objects.create(
+                        institution=institution,
+                        phone=number
+                    )
+            delete_phones = [i for i in institution_numbers if i.phone in old_numbers]
+            for instance in delete_phones:
+                instance.delete()
+
+            # Handle address
+            old_address = [i.address for i in institution_address]
+            for address in request.POST.getlist('address'):
+                if address in old_address:
+                    old_address.remove(address)
+                else:
+                    MedicalInstitutionsAddress.objects.create(
+                        institution=institution,
+                        address=address
+                    )
+            delete_address = [i for i in institution_address if i.address in old_address]
+            for instance in delete_address:
+                instance.delete()
+
+            # Clinic Handle
+            clinic.email = request.POST.get('email')
+            clinic.fax = request.POST.get('fax')
+            clinic.er_availability = ER
+            clinic.hide = hide
+
+            clinic.save()
+
+            # Handle Specialization
+            old_specializations = [str(i) for i in clinic_specializations]
+
+            for specialization in request.POST.getlist('specialization'):
+                if specialization in old_specializations:
+                    old_specializations.remove(specialization)
+                else:
+                    specialization = get_object_or_none(specializations, name=specialization)
+                    ClinicSpecialization.objects.create(
+                        clinic=clinic,
+                        specialization=specialization
+                    )
+
+            delete_specializations = [i for i in clinic_specializations if str(i) in old_specializations]
+            for instance in delete_specializations:
+                ClinicSpecialization.objects.all().filter(
+                    clinic=clinic,
+                    specialization=instance
+                ).delete()
+
+    context = {
+        'institution': institution,
+        'main_phone': institution_numbers[0].phone,
+        'phones': institution_numbers[1:],
+        'main_address': institution_address[0].address,
+        'address': institution_address[1:],
+        'clinic': clinic,
+        'specializations': specializations,
+        'clinic_specializations': clinic_specializations
+
+    }
+
+    return render(request, 'cpanel/Clinic/Clinic_edit.html', context)
 
 
 def Clinic_list(request):
@@ -1436,6 +1540,7 @@ def Pharmacy_add(request):
                 institution_id=request.POST.get('institution_id'),
                 image=request.FILES.get('image'),
                 institution_name=request.POST.get('institution_name'),
+                standard_fee= request.POST.get('standard_fee'),
                 hide=hide,
             )
 
@@ -1468,8 +1573,25 @@ def Pharmacy_add(request):
 
 
 def Pharmacy_edit(request, id):
-    pass
+    institution = get_object_or_404(MedicalInstitutions, institution_id=id)
+    institution_numbers = institution.get_phone
+    institution_address = institution.get_address
 
+
+
+    pharmacy =  get_object_or_404(Pharmacy, pharmacy=id)
+
+    context = {
+        'institution': institution,
+        'main_phone': institution_numbers[0],
+        'phones': institution_numbers[1:],
+        'main_address': institution_address[0],
+        'address': institution_address[1:],
+        'pharmacy': pharmacy,
+        
+    }
+
+    return render(request, 'cpanel/Pharmacy/Pharmacy_edit.html', context)
 
 def Pharmacy_list(request):
     pharmacies = Pharmacy.objects.all()
@@ -1503,6 +1625,7 @@ def Lab_add(request):
                 medical_institution = MedicalInstitutions.objects.create(
                     institution_id=request.POST.get('institution_id'),
                     institution_name=request.POST.get('institution_name'),
+                    standard_fee= request.POST.get('standard_fee'),
                     user=user
                 )
 
@@ -1559,6 +1682,7 @@ def Lab_edit(request, id):
 
             # Handle stakeholder
             institution.institution_name = request.POST.get('institution_name')
+            institution.standard_fee = request.POST.get('standard_fee'),
 
             # Handle stakeholder image
             if request.FILES.get('image'):
@@ -1714,6 +1838,7 @@ def Medical_Institution_edit(request, id):
 
             # Handle stakeholder
             institution.institution_name = request.POST.get('institution_name')
+            institution.standard_fee = request.POST.get('standard_fee'),
             institution.hide = hide
 
             # Handle stakeholder image
@@ -1773,7 +1898,7 @@ def Medical_Institution_list(request):
     if request.method == 'POST':
         institution = get_object_or_none(MedicalInstitutions, institution_id=request.POST.get('id'))
         if institution:
-            institution.hide = True
+            institution.hide = True 
             institution.save()
 
     context = {
@@ -1784,47 +1909,65 @@ def Medical_Institution_list(request):
 
 # Physician Clinic Working Time Views
 def Physician_Clinic_Working_Time_add(request):
-    if request.is_ajax():
-        if request.method == 'POST':
-            physician = get_object_or_none(Physician, physician_nn=request.POST.get('physician_nn'))
-            if not physician:
-                return HttpResponseNotFound("This doctor data is not stored")
+    data={}
+    
+    if request.is_ajax() and request.method == 'GET':
+    #     # handle working branch
+        get_clinic_id = request.GET.get('code')
+        clinic_address = MedicalInstitutionsAddress.objects.filter(institution=get_clinic_id)       
+        address = []
+        for i in clinic_address :
+            address.append(i.address)
+        dictOfWords = { i : address[i] for i in range(0, len(address) ) }
+   
+        print(dictOfWords)
+        return JsonResponse(dictOfWords ,safe= False)
+        
+        
+    if request.method == 'POST':
+        physician = get_object_or_none(Physician, physician_nn=request.POST.get('physician_nn'))
+        if not physician:
+            return HttpResponseNotFound("This doctor data is not stored")
 
-            clinic = get_object_or_none(Clinic, clinic=request.POST.get('clinic'))
-            if not clinic:
-                return HttpResponseNotFound("This clinic data is not stored")
+        clinic = get_object_or_none(Clinic, clinic=request.POST.get('clinic'))
+        if not clinic:
+            return HttpResponseNotFound("This clinic data is not stored")
 
-            for day in request.POST.getlist('week_day'):
-                work_day = PhysicianClinicWorkingTime.objects.filter(
-                    physician_nn=physician,
-                    clinic=clinic,
-                    week_day=day,
-                    start_time=request.POST.get('start_time'),
-                    end_time=request.POST.get('end_time')
+        for day in request.POST.getlist('week_day'):
+            work_day = PhysicianClinicWorkingTime.objects.filter(
+                physician_nn=physician,
+                clinic=clinic,
+                week_day=day,
+                start_time=request.POST.get('start_time'),
+                end_time=request.POST.get('end_time')
                 )
-                if work_day.count():
-                    return HttpResponseNotFound("This working day data is already stored you can go to working days edit")
+            if work_day.count():
+                return HttpResponseNotFound("This working day data is already stored you can go to working days edit")
 
-            hide = True if request.POST.get('hide') == 'on' else False
+        hide = True if request.POST.get('hide') == 'on' else False
 
-            for day in request.POST.getlist('week_day'):
-                PhysicianClinicWorkingTime.objects.create(
-                    physician_nn=physician,
-                    clinic=clinic,
-                    week_day=day,
-                    start_time=request.POST.get('start_time'),
-                    end_time=request.POST.get('end_time'),
-                    fee=request.POST.get('fee'),
-                    hide=hide,
+        for day in request.POST.getlist('week_day'):
+            PhysicianClinicWorkingTime.objects.create(
+                physician_nn=physician,
+                clinic=clinic,
+                week_day=day,
+                start_time=request.POST.get('start_time'),
+                end_time=request.POST.get('end_time'),
+                fee=request.POST.get('fee'),
+                hide=hide,
+                physician_working_branch= request.POST.get('physician_working_branch')
                 )
-            return HttpResponse()
+        return HttpResponse()     
 
-    return render(request, 'cpanel/Clinic/Physician_Clinic_working_time_add.html')
+    return render(request, 'cpanel/Clinic/Physician_Clinic_working_time_add.html',data)
 
 
 def Physician_Clinic_Working_Time_edit(request):
-    pass
-
+    physician_clinic_working_times = PhysicianClinicWorkingTime.objects.all()
+    context = {
+        "physician_clinic_working_times": physician_clinic_working_times,
+    }
+    return render(request, 'cpanel/Clinic/Physician_Clinic_working_time_list.html', context)
 
 def Physician_Clinic_Working_Time_list(request):
     physician_clinic_working_times = PhysicianClinicWorkingTime.objects.all()
@@ -1879,7 +2022,25 @@ def Hospital_add(request):
 
 
 def Hospital_edit(request, id):
-    pass
+    institution = get_object_or_404(MedicalInstitutions, institution_id=id)
+    institution_numbers = institution.get_phone
+    institution_address = institution.get_address
+
+    hospital = get_object_or_404(Hospital, hospital=id)
+
+    
+    context = {
+        'institution': institution,
+        'main_phone': institution_numbers[0],
+        'phones': institution_numbers[1:],
+        'main_address': institution_address[0],
+        'address': institution_address[1:],
+        'hospital': hospital,
+    }
+
+    # Part 4
+    return render(request, 'cpanel/Hospital/Hospital_edit.html', context)
+
 
 
 def Hospital_list(request):
@@ -1892,7 +2053,16 @@ def Hospital_list(request):
 
 # Physician Hospital Working Time Views
 def Physician_Hospital_Working_Time_add(request):
+
+    context={}
+
     if request.is_ajax():
+        # handle working branch
+        hospital = get_object_or_none(Hospital, hospital=334)
+        get_hospital_branches = hospital.get_address
+        context ={
+                "get_hospital_branches" : get_hospital_branches
+                }  
         if request.method == 'POST':
             physician = get_object_or_none(Physician, physician_nn=request.POST.get('physician_nn'))
             if not physician:
@@ -1924,13 +2094,26 @@ def Physician_Hospital_Working_Time_add(request):
                     end_time=request.POST.get('end_time'),
                     fee=request.POST.get('fee'),
                     hide=hide,
+                    physician_working_branch= request.POST.get('physician_working_branch')
                 )
             return HttpResponse()
-    return render(request, 'cpanel/Hospital/Physician_Hospital_working_time_add.html')
+    return render(request, 'cpanel/Hospital/Physician_Hospital_working_time_add.html',context)
 
 
 def Physician_Hospital_Working_Time_edit(request):
-    pass
+    physicianhospitalworkingtime = get_object_or_404(PhysicianHospitalWorkingTime, pk=id)
+
+
+
+    context = {
+        'physicianhospitalworkingtime': physicianhospitalworkingtime,
+
+    }
+
+
+
+
+    return render(request, 'cpanel/Hospital/Physician_Hospital_working_time_edit.html', context)
 
 
 def Physician_Hospital_Working_Time_list(request):
@@ -1976,7 +2159,30 @@ def Insurance_Company_add(request):
 
 
 def Insurance_Company_edit(request, id):
-    pass
+    insurance_company = get_object_or_404(InsuranceCompanies, company_id=id)
+    insurance_company_numbers = insurance_company.get_phone
+    insurance_company_address = insurance_company.get_address
+
+   
+   
+
+    context = {
+        'insurance_company': insurance_company,
+        'main_phone': insurance_company_numbers[0],
+        'phones': insurance_company_numbers[1:],
+        'main_address': insurance_company_address[0],
+        'address': insurance_company_address[1:],
+        
+    }
+
+    return render(request, 'cpanel/Insurance Company/Insurance_Company_edit.html', context)
+
+def Insurance_Company_list(request):
+    insurance_companies = InsuranceCompanies.objects.all()
+    context = {
+        "insurance_companies": insurance_companies,
+    }
+    return render(request, 'cpanel/Insurance Company/Insurance_Company_list.html', context)
 
 
 def Insurance_Company_list(request):
@@ -2010,7 +2216,19 @@ def Insurance_Type_add(request):
 
 
 def Insurance_Type_edit(request, id):
-    pass
+    insurance_type = get_object_or_404(InsuranceTypes, type_id=id)
+
+
+   
+   
+
+    context = {
+        'insurance_type': insurance_type,
+       
+        
+    }
+
+    return render(request, 'cpanel/Insurance Company/Insurance_Type_edit.html', context)
 
 
 def Insurance_Type_list(request):

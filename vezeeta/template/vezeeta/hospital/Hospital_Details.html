@@ -15,7 +15,7 @@
          </li>
          <li class="breadcrumb-item">
           <a href="./all-spaces.html">
-           Clinic Details
+           Hospital Details
           </a>
          </li>
          <li aria-current="page" class="breadcrumb-item active">
@@ -25,16 +25,16 @@
        </nav>
        <!-- Heading -->
        <h1 class="display-2">
-        Clinics in
+        Hospitals in
         <span class="font-weight-light">
          Egypt
         </span>
        </h1>
        <!-- Text -->
        <p class="lead text-muted mt-4">
-        100+ Clinic's specializations & Covers 165+ Locations.
+        100+ Hospital's specializations & Covers 165+ Locations.
         <br/>
-        Discover and Book Clinic today.
+        Discover and Book Hospital today.
        </p>
       </div>
      </div>
@@ -64,7 +64,7 @@
          <a aria-controls="nav-location" aria-selected="false" class="nav-item nav-link" data-toggle="tab" href="#nav-location" id="nav-location-tab" role="tab">
           <i class="fas fa-map-marker-alt">
           </i>
-          Clinic Location
+          Hospital Location
           </a>
 
 
@@ -82,7 +82,7 @@
           <span class="lh-120 ml-md-4">
            <i class="fas fa-map-marker-alt mr-1 pr-1">
            </i>
-           {% for address in clinic.get_address %}
+           {% for address in hospital.get_address %}
              {% if forloop.first %}
                     {{address.address}}                           
                 {% endif %}
@@ -126,9 +126,9 @@
                 overflow-x: hidden; 
                 overflow-x: auto; ">
          <p class="font-small font-weight-light text-gray mb-3">
-        {{clinicratingcount}} reviews found
+        {{hospitalratingcount}} reviews found
          </p>
-         {% for rate in clinicrating %}
+         {% for rate in hospitalrating %}
          <div class="bg-white border border-soft shadow-soft p-4 mb-4">
           <div class="d-flex justify-content-between mb-4">
            <div class="d-flex align-items-center">
@@ -210,7 +210,7 @@
           <div class="col-12">
            <div class="mapouter">
             <div class="gmap_canvas">
-              {% for address in clinic.get_address%}
+              {% for address in hospital.get_address%}
                    {% if forloop.first %}
                                            
                
@@ -248,10 +248,10 @@
 
        <div class="card shadow-sm border-soft mt-4 p-3">
         <h5 class="font-weight-normal">
-         Clinic Name
+         Hospital Name
         </h5>
         <div class="media d-flex align-items-center my-3">
-         <a class="avatar-lg mr-2" data-placement="top" data-toggle="tooltip" href="../../clinic_details/{{medicalinstitution.institution_id}}" title="More details">
+         <a class="avatar-lg mr-2" data-placement="top" data-toggle="tooltip" href="../../hospital_details/{{medicalinstitution.institution_id}}" title="More details">
                {% if medicalinstitution.image %}
                                                       
                                                         
@@ -259,7 +259,7 @@
           {% endif %}
          </a>
          <div class="avatar-name">
-          <a class="text-gray" data-placement="top" data-toggle="tooltip" href="../../clinic_details/{{medicalinstitution.institution_id}}" title="More details">
+          <a class="text-gray" data-placement="top" data-toggle="tooltip" href="../../hospital_details/{{medicalinstitution.institution_id}}" title="More details">
           {{medicalinstitution.institution_name}}
           </a>
          </div>
@@ -298,12 +298,12 @@
                                  
                                         <div style="text-align: center; margin-left: auto;
                                                       margin-right: auto;">
-                 <p>----------------- Clinic -----------------</p>
+                 <p>----------------- Hospital -----------------</p>
                                     </div>
-                                             {% for phone in clinic.clinic.get_phone %}
+                                             {% for phone in hospital.hospital.get_phone %}
                                      {% if forloop.first %}
                                   <a href="tel:{{phone.phone}}"  aria-hidden="true" class="btn btn-primary btn-lg btn-block">
-                                                        <i class="fa fa-phone"   aria-hidden="true">  Call CLinic </i>
+                                                        <i class="fa fa-phone"   aria-hidden="true">  Call Hospital </i>
                                                             <br />
                                                         </a>
                                                         {% endif %}                       
@@ -322,9 +322,9 @@
                                                       </div>     
                  
                      
-                                  <a href="mailto:{{clinic.email}}"  aria-hidden="true" class="btn btn-danger btn-lg btn-block">
+                                  <a href="mailto:{{hospital.email}}"  aria-hidden="true" class="btn btn-danger btn-lg btn-block">
                                                                   <i class="fa fa-envelope">
-                                      Mail Clinic 
+                                      Mail Hospital 
                                    </i>
                                                                             <br />
                                                                         </a>                       
@@ -365,7 +365,7 @@
                 
           <select value="" name="physician_nn" class="mdb-select md-form" searchable="Search here.." id="selected_doctor">
             <option value="" disabled selected>Choose a doctor</option>
-            {% for doctor in physicianclinicworkingtime %}
+            {% for doctor in physicianhospitalworkingtime %}
               <option value="{{doctor.physician_nn}}"  data-secondary-text="Production year: 2012">
             Dr.{{doctor.physician_nn.physician_nn.stakeholder_name}} 
            </option>
@@ -650,7 +650,7 @@
 <script type="text/javascript" >
 
                      // ((for page url & post data)) //
-var clinic = {{clinic}};
+var hospital = {{hospital}};
 var patient = {{stakeholder_user}};
 let rate_value = null;
   // handle radio input
@@ -679,7 +679,7 @@ var message = document.getElementsByName('message')[0].value;
 $.ajax({
 
       type:'POST',
-      url: "http://127.0.0.1:8000/browse/clinic_details/"+clinic+"/",
+      url: "http://127.0.0.1:8000/browse/hospital_details/"+hospital+"/",
       data:{
             physician_nn: selected,
             email : email,
@@ -705,13 +705,13 @@ $('#review_form').submit(function(e){
     $.ajax({
 
       type:'POST',
-      url: "http://127.0.0.1:8000/browse/clinic_details/"+clinic+"/",
+      url: "http://127.0.0.1:8000/browse/hospital_details/"+hospital+"/",
       data:{
 
             patient_comment_js :$('#patient_comment').val(),
             rate_js : rate_value,
             patient_nn_js : patient ,
-            clinic_id_js: clinic ,
+            hospital_id_js: hospital ,
             csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
 
          },
