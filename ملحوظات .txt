@@ -7,7 +7,10 @@ fix close sign in contact button
 adjust specialization with doctor (clinic page and hospital page) 
 notes that google api (google map) need activation in physician page as its dynamic unlike the (clinic , hospital ) static view
 note that picture wont work so add your own
+<<<<<<< HEAD
 
 # note we should set a default hidden record (physician record) to be used as defualt  value for rating in database (recommendation system )
+=======
+>>>>>>> 73b2f1e645a916894bfe9f617bbf195ef92bfe40
 
 
