@@ -2,9 +2,12 @@ blue care logo in top left of the page will be replaced with logo in the future
 make small picture in the right fixed size
 change drop list style as you like
 make booking calendar functionality 
-add submit success message foor review and booking
+add submit success message for review and booking
 fix close sign in contact button
 adjust specialization with doctor (clinic page and hospital page) 
-notes that google api need activation in physician page as its dynamic unlike the (clinic , hospital ) static view
+notes that google api (google map) need activation in physician page as its dynamic unlike the (clinic , hospital ) static view
+note that picture wont work so add your own
+
+# note we should set a default hidden record (physician record) to be used as defualt  value for rating in database (recommendation system )
 
 

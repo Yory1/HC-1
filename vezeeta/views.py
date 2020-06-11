@@ -9,9 +9,61 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 from django.core import serializers
 import operator 
+from .recommendation import *
+import numpy as np
+import math
+from collections import OrderedDict 
+from .recommendation import *
 
 def Doctor_Details(request,NN):
+    # AI recommendation functions call 
+    Save_All_Doctors_In_Recommendation_Data_Base(NN)
+    current_doctor_data = Return_Doctor_Details_For_Recommendation(NN)
+    KNN_List = main(current_doctor_data)
+    KNN_List_Cleared = []
+    counter = 0 
+    addresses= []
+    rates = [] 
+    fees = []
+    bookings = []
+    titles= []
+    images=[]
+    for i in KNN_List:
+        if KNN_List[counter] == None :
+            counter += 1        
+        else:
+            KNN_List_Cleared.append(KNN_List[counter])
+            nn = KNN_List[counter].physician_nn
+            instance = get_object_or_404(Physician, physician_nn=nn)
+            if PhysicianClinicWorkingTime.objects.filter(physician_nn=instance):
+                obj = PhysicianClinicWorkingTime.objects.filter(physician_nn=instance)
+                clinic = obj[0].clinic.clinic.institution_id
+                instance_clinic = MedicalInstitutions.objects.filter(institution_id=clinic)
+                addresss = instance_clinic[0].get_address
+                addresses.append(addresss[0].address)
+                # addresses.append(instance_clinic)
+            else :
+                addresses.append(None)
+            obj = PhysicianRecommendation.objects.filter(physician_nn=instance)
+            print(obj)
+            rate = obj[0].rating 
+            fee = obj[0].fee
+            fees.append(fee)  
+            booking = obj[0].booking_count
+            bookings.append(booking)    
+            rates.append(rate)
+            physician= Physician.objects.filter(physician_nn=instance) 
+            title = physician[0].title
+            titles.append(title)
+            stakeholder = Stakeholders.objects.filter(national_number=instance)
+            image = stakeholder[0].image
+            images.append(image)
+            counter += 1
+    # dictOf_KNN_Cleared = { i : KNN_List_Cleared[i] for i in range(0, len(KNN_List_Cleared) ) }
+    full_list = zip(KNN_List_Cleared,addresses,rates,fees,bookings,titles,images)
+    print(KNN_List_Cleared,addresses,rates,fees,bookings,titles,images)
 
+    # ************************************************************ #
     if request.is_ajax() and request.method == 'GET':
        # handle visit location
         get_medical_institution_id = request.GET.get('code')
@@ -76,16 +128,26 @@ def Doctor_Details(request,NN):
     doctor = get_object_or_404(Physician, physician_nn=NN)
     #handle clinicworkingtime
     physicianclinicworkingtime = PhysicianClinicWorkingTime.objects.filter(physician_nn=NN)
-    for clinic in physicianclinicworkingtime[1:] :
-        first_clinic=clinic.clinic
-    clinic_id = first_clinic.clinic
-    clinic =get_object_or_404(Clinic, clinic=clinic_id)
+    clinic_id = None
+    clinic = None
+    if physicianclinicworkingtime[1:] :
+        for clinic in physicianclinicworkingtime[1:] :
+            first_clinic=clinic.clinic
+            clinic_id = first_clinic.clinic
+            clinic =get_object_or_404(Clinic, clinic=clinic_id)
+    else:       
+        pass
     #handle hospitalworkingtime
     physicianhospitalworkingtime = PhysicianHospitalWorkingTime.objects.filter(physician_nn=NN)
-    for hospital in physicianhospitalworkingtime[1:] :
-        first_hospital=hospital.hospital
-    hospital_id = first_hospital.hospital
-    hospital = get_object_or_404(Hospital, hospital=hospital_id)
+    hospital_id = None
+    hospital = None
+    if physicianclinicworkingtime[1:] :
+        for hospital in physicianhospitalworkingtime[1:] :
+            first_hospital=hospital.hospital
+            hospital_id = first_hospital.hospital
+            hospital = get_object_or_404(Hospital, hospital=hospital_id)
+    else:
+        pass  
     stakeholder = get_object_or_404(Stakeholders, national_number=NN)
     #handle rating
     physicianrating = None
@@ -107,7 +169,14 @@ def Doctor_Details(request,NN):
         'physicianrating':physicianrating,
         'physicianratingcount':physicianratingcount,
         'stakeholder_user':stakeholder_user,
-        
+        #********************** AI recommendation variables **********************
+        'KNN_List':full_list,
+        # 'addresses':addresses,
+        # 'rates' :rates  ,
+        # 'fees' : fees,
+        # 'bookings': bookings ,
+        # 'titles': titles,
+        # 'images':images
     }
         
     if request.method == 'POST' and request.is_ajax() :

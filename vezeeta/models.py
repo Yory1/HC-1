@@ -80,3 +80,19 @@ class HospitalPatientBooking(models.Model):
 
     def __str__(self):
         return str(self.id)
+        
+class PhysicianRecommendation(models.Model) :
+    ID = models.AutoField(db_column='ID', primary_key=True)
+    physician_nn = models.ForeignKey(Physician, models.DO_NOTHING, db_column='Physician_NN')
+    rating = models.IntegerField(db_column='Rating', blank=True,default=3, null=True)
+    specialization_id = models.CharField(db_column='Specialization_ID',max_length=50) 
+    fee = models.IntegerField(db_column='Fee', blank=True,default=200, null=True)
+    booking_count = models.IntegerField(db_column='Booking_Count',default=1, blank=True, null=True)
+
+    class Meta:
+        db_table = 'Physician_Recommendation'
+        verbose_name = 'Physician Recommendation'
+        verbose_name_plural = 'Physician Recommendations'
+
+    def __str__(self):
+        return str(self.ID)

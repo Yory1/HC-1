@@ -421,72 +421,73 @@
     <div class="container">
      <div class="row">
       <div class="col-12">
+        {% if KNN_List %}
        <h4 class="mb-5 font-weight-bold">
-        Similar spaces you might like
+        Similar Doctors you might like
        </h4>
+       {% endif %}
       </div>
+      {% for physician,address,rate,fee,booking,title,image in KNN_List %} 
       <div class="col-md-6 col-lg-4">
        <!-- Card -->
        <div class="card shadow-sm border-soft mb-4 animate-up-5">
-        <a class="position-relative" href="./single-space.html">
-         <img alt="image" class="card-img-top" src="{% static 'vezeeta/assets/img/lifestyle-office.jpg' %}"/>
-         <span class="badge badge-secondary position-absolute listing-badge">
-          <span class="font-weight-normal font-xs">
-           Lifestyle Space
-          </span>
-         </span>
+        <a class="position-relative" href="../../doctor_details/{{physician.physician_nn}}">
+         <img alt="image" class="card-img-top" src="{{image.url}}"/>
         </a>
         <div class="card-body">
          <a href="./single-space.html">
           <h5 class="font-weight-normal">
-           Lifestyle Space
+           {{ physician.physician_nn.stakeholder_name}} {{physician.physician_nn.stakeholder_last_name}}
           </h5>
          </a>
          <div class="post-meta">
           <span class="small lh-120">
            <i class="fas fa-map-marker-alt mr-2">
-           </i>
-           Madrid, Hortaleza, Spain
+           </i> 
+              {{ address }}
           </span>
          </div>
          <div class="d-flex my-4">
-          <i class="star fas fa-star text-warning">
+            {% if rate %}
+             {% with ''|center:rate as range %}
+            {% for _ in range %}
+
+             <i class="star fas fa-star text-warning">
           </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
+             
+            {% endfor %}
+
+             {% endwith %}
+
+               {% endif %}
+
           <span class="badge badge-pill badge-secondary ml-2">
-           5.0
+           {{rate}}
           </span>
          </div>
          <div class="d-flex justify-content-between">
           <div class="col pl-0">
            <span class="text-muted font-small d-block mb-2">
-            Daily
+            Fee
            </span>
            <span class="h5 text-dark font-weight-bold">
-            350$
+            {{fee}}$
            </span>
           </div>
           <div class="col">
            <span class="text-muted font-small d-block mb-2">
-            People
+            Bookings
            </span>
            <span class="h5 text-dark font-weight-bold">
-            10-25
+            {{booking}}
            </span>
           </div>
           <div class="col pr-0">
            <span class="text-muted font-small d-block mb-2">
-            Sq.Ft
+            Degree
            </span>
            <span class="h5 text-dark font-weight-bold">
-            100
+            {{title}}
            </span>
           </div>
          </div>
@@ -494,143 +495,7 @@
        </div>
        <!-- End of Card -->
       </div>
-      <div class="col-md-6 col-lg-4">
-       <!-- Card -->
-       <div class="card shadow-sm border-soft mb-4 animate-up-5">
-        <a class="position-relative" href="./single-space.html">
-         <img alt="image" class="card-img-top" src="{% static 'vezeeta/assets/img/private-office.jpg' %}"/>
-         <span class="badge badge-warning position-absolute listing-badge">
-          <span class="font-weight-normal font-xs">
-           Private Space
-          </span>
-         </span>
-        </a>
-        <div class="card-body">
-         <a href="./single-space.html">
-          <h5 class="font-weight-normal">
-           Private Space
-          </h5>
-         </a>
-         <div class="post-meta">
-          <span class="small lh-120">
-           <i class="fas fa-map-marker-alt mr-2">
-           </i>
-           Budapest, Ferencvaros, Hungary
-          </span>
-         </div>
-         <div class="d-flex my-4">
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-gray-200">
-          </i>
-          <span class="badge badge-pill badge-secondary ml-2">
-           4.0
-          </span>
-         </div>
-         <div class="d-flex justify-content-between">
-          <div class="col pl-0">
-           <span class="text-muted font-small d-block mb-2">
-            Monthly
-           </span>
-           <span class="h5 text-dark font-weight-bold">
-            100$
-           </span>
-          </div>
-          <div class="col">
-           <span class="text-muted font-small d-block mb-2">
-            People
-           </span>
-           <span class="h5 text-dark font-weight-bold">
-            1
-           </span>
-          </div>
-          <div class="col pr-0">
-           <span class="text-muted font-small d-block mb-2">
-            Sq.Ft
-           </span>
-           <span class="h5 text-dark font-weight-bold">
-            10
-           </span>
-          </div>
-         </div>
-        </div>
-       </div>
-      </div>
-      <!-- End of Card -->
-      <div class="col-md-6 col-lg-4">
-       <!-- Card -->
-       <div class="card shadow-sm border-soft mb-4 animate-up-5">
-        <a class="position-relative" href="./single-space.html">
-         <img alt="image" class="card-img-top" src="{% static 'vezeeta/assets/img/conference-office.jpg' %}"/>
-         <span class="badge badge-primary position-absolute listing-badge">
-          <span class="font-weight-normal font-xs">
-           Conference Room
-          </span>
-         </span>
-        </a>
-        <div class="card-body">
-         <a href="./single-space.html">
-          <h5 class="font-weight-normal">
-           Conference Room
-          </h5>
-         </a>
-         <div class="post-meta">
-          <span class="small lh-120">
-           <i class="fas fa-map-marker-alt mr-2">
-           </i>
-           Paris, La Defense, France
-          </span>
-         </div>
-         <div class="d-flex my-4">
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <i class="star fas fa-star text-warning">
-          </i>
-          <span class="badge badge-pill badge-secondary ml-2">
-           4.7
-          </span>
-         </div>
-         <div class="d-flex justify-content-between">
-          <div class="col pl-0">
-           <span class="text-muted font-small d-block mb-2">
-            Hourly
-           </span>
-           <span class="h5 text-dark font-weight-bold">
-            100$
-           </span>
-          </div>
-          <div class="col">
-           <span class="text-muted font-small d-block mb-2">
-            People
-           </span>
-           <span class="h5 text-dark font-weight-bold">
-            2-20
-           </span>
-          </div>
-          <div class="col pr-0">
-           <span class="text-muted font-small d-block mb-2">
-            Sq.Ft
-           </span>
-           <span class="h5 text-dark font-weight-bold">
-            200
-           </span>
-          </div>
-         </div>
-        </div>
-       </div>
-       <!-- End of Card -->
+      {% endfor %}
       </div>
      </div>
     </div>
